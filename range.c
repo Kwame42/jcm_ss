@@ -12,7 +12,7 @@ int			getNumWorkItemPerWorkGroup(t_universe *universe, t_gpu *execution) {
   int			num;
 
   numCore=getDeviceNumCore(execution->devices[0]);
-  prefWgSizeMul=getDevicePrefWorkGroupSizeMul(execution->kernel, execution->devices[0]);
+  prefWgSizeMul=getDevicePrefWorkGroupSizeMul(execution->kernel[0], execution->devices[0]);
   maxWorkItem=getDeviceMaxWorkItemPerWorkGroup(execution->devices[0]);
   num=getMultipleMax(numCore, prefWgSizeMul, maxWorkItem);
   printf(">>INFO   : We consider [%d] work-item per workgroup\n", num);
@@ -67,4 +67,5 @@ void			getRange(t_universe *universe, t_gpu *execution) {
   printf(">>INFO   : Device range is [%d]\n", execution->uintData.deviceRange);
   printf(">>INFO   : Object local mem chunk per device is [%d]\n", getObjChunkPerDevice(execution));
   execution->objChunk=getChunkAddress(universe->objectList, execution->numDevices, execution->uintData.deviceRange);
+  execution->deviceIndex=(unsigned int *)allocate(sizeof(unsigned int) * execution->numDevices);
 }

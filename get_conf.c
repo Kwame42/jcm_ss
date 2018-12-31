@@ -97,7 +97,7 @@ char			*getConfFile(const char *file) {
     exit(1);
   }
   close(fd);
-  
+
   return buff;
 }
 

@@ -35,79 +35,26 @@ cl_device_id				*createDevice(cl_platform_id platform, cl_uint *numDevices) {
    return devices;
 }
 
-cl_program				buildProgram(cl_context context, cl_device_id *dev, const char* filename) {
-  cl_program				program;
-  char					*programBuffer;
-  size_t				programSize;
-  int					err;
-  #define WD_MAX_SIZE			2048
-  char					cwd[WD_MAX_SIZE];
-  char					*iPath;
-
-  programBuffer=getConfFile(filename);
-  programSize=getFilesize(filename);
-  if ((program=clCreateProgramWithSource(context, 1, (const char**)&programBuffer, &programSize, &err)) < 0) {
-    perror("Couldn't create the program");
-    exit(1);
-  }
-  bzero(cwd, WD_MAX_SIZE);
-  if (getcwd(cwd, WD_MAX_SIZE) == NULL) {
-    perror("can't get current working dir\n");
-    exit(1);
-  }
-  asprintf(&iPath, "-I%s", cwd);
-  if ((err=clBuildProgram(program, 0, NULL, iPath, NULL, NULL)) < 0) {
-    char				*programLog;
-    size_t				logSize;
-    
-    clGetProgramBuildInfo(program, *dev, CL_PROGRAM_BUILD_LOG, 0, NULL, &logSize);
-    logSize += 1;
-    programLog=allocate(logSize);
-    clGetProgramBuildInfo(program, *dev, CL_PROGRAM_BUILD_LOG, logSize, programLog, NULL);
-    printf("%s\n", programLog);
-    exit(1);
-  }
-  free(iPath);
-
-   return program;
-}
-
-cl_context				createContext(cl_device_id *devices, cl_uint numDevices) {
-  cl_context				ret;
-  cl_int				err;
-
-  if ((ret=clCreateContext(NULL, numDevices, devices, NULL, NULL, &err)) < 0) {
-    perror("Couldn't create a context");
-    exit(1);   
-  }
-
-  return ret;
-}
-
 void					initGpu(t_gpu *execution, char *programFile, char *programName) {
-  cl_uint				i;
-  
   execution->platform=createPlatform();
   execution->devices=createDevice(execution->platform, &execution->numDevices);
   execution->context=createContext(execution->devices, execution->numDevices);
-  execution->program=buildProgram(execution->context, execution->devices, programFile);
-  execution->queue=allocate(sizeof(cl_command_queue) * execution->numDevices);
-  for (i=0 ; i < execution->numDevices ; i++) {
-    execution->queue[i]=createCommandQueue(execution->context, execution->devices[i]);
-  }
-  execution->kernel=createKernel(execution->program, programName);
+  execution->program=buildProgram(execution->context, execution->devices, execution->numDevices, programFile);
+  execution->kernel=createKernel(execution->program, programName, execution->numDevices);
+  execution->queue=createCommandQueue(execution->context, execution->devices, execution->numDevices);
 }
 
-
-void					releaseGpu(t_gpu *execution) {
+/*
+  void					releaseGpu(t_gpu *execution) {
   int					i;
   
   clReleaseKernel(execution->kernel);
   //  clReleaseMemObject(sum_buffer);
   //clReleaseMemObject(input_buffer);
   for (i=0 ; i <= execution->numDevices ; i++) {  
-    clReleaseCommandQueue(execution->queue[i]);
+  clReleaseCommandQueue(execution->queue[i]);
   }
   clReleaseProgram(execution->program);
   clReleaseContext(execution->context);
-}
+  }
+*/

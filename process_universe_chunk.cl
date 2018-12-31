@@ -29,6 +29,7 @@ uint		memcpy_gl_lo(__local float8 *dst, uint size_dst, __global float8 *src, uin
   
   return size;
 }
+
 /*
 **
 */
@@ -37,7 +38,7 @@ __kernel void	process_universe_chunk(__local float8		*lo_obj_list,
 				       __local float8		*lo_data,
 				       __global float8		*GL_obj_list,
 				       __constant t_const_data	*GL_uint_data,
-				       __constant uint		*GL_device_num,
+				       __global uint		*GL_device_num,
 				       __global float8		*GL_data
 				       ) {
   uint					num_work_group, local_addr, group_addr, num_worker, global_addr;
@@ -103,5 +104,7 @@ __kernel void	process_universe_chunk(__local float8		*lo_obj_list,
   }
   e = async_work_group_copy(&GL_data[group_addr * device_range / num_work_group], lo_data, device_range / num_work_group, e);
   wait_group_events(1, &e);
+  //  if (local_addr == 0 && group_addr == 0)
+  //    printf("%d\n", *GL_device_num);
 }
 

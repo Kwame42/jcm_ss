@@ -6,10 +6,10 @@
 /*
 **
 */
-int					setKernelArg(cl_kernel kernel, int *nextArg, int size, void *arg) {
+int					setKernelArg(cl_kernel kernel, int nextArg, int size, void *arg) {
   cl_int				err;
 
-  if ((err=clSetKernelArg(kernel, *nextArg, size, arg)) < 0) {
+  if ((err=clSetKernelArg(kernel, nextArg, size, arg)) < 0) {
     t_ocl_err				err_list[]={
 						    {CL_INVALID_KERNEL, "if kernel is not a valid kernel object."},
 						    {CL_INVALID_ARG_INDEX, "if arg_index is not a valid argument index."},
@@ -23,72 +23,72 @@ int					setKernelArg(cl_kernel kernel, int *nextArg, int size, void *arg) {
     perror("Couldn't enqueue the kernel");
     exit(1);
   }
-  (*nextArg)+=1;
   
-  return *nextArg;
+  return nextArg;
 }
 
 int					setGlobalKernelArg(t_gpu *execution, t_universe *universe) {
-  int					nextArg;
-  unsigned int				deviceNum;
+  int					i;
   
-  nextArg=0;
-
-  /*
-  ** 1 - Local Mem for all particules (recuring buffer) __local (RW)
-  */ 
-  setKernelArg(execution->kernel, &nextArg, execution->uintData.localMemSize, NULL);
-
-  /*
-  ** 2 - Recuring buffer position __local (RW)
-  */
-  setKernelArg(execution->kernel, &nextArg, sizeof(unsigned int), NULL);
-  
-  /*
-  ** 3 - Local Mem for temp particules __local (RW)
-  */
-  setKernelArg(execution->kernel, &nextArg, execution->numWorkerPerWorkgroup * sizeof(t_object), NULL);
-
-  /*
-  ** 4 - List of particules __global (RO)
-  */
-  execution->clObjectList=createBuffer(execution->context,
-				       CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-				       sizeof (t_object) * universe->numObj,
-				       universe->objectList);
-  setKernelArg(execution->kernel, &nextArg, sizeof(cl_mem), &execution->clObjectList);
-
-  /*
-  ** 5 - Constant __constant (RO)
-  */
-  execution->uintData.numObj=universe->numObj;
-  execution->uintData.radius=universe->radius;
-  execution->uintData.tooClose=universe->tooClose;
-  execution->uintData.tooFar=universe->tooFar;
-  execution->clUintData=createBuffer(execution->context,
-                                     CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                     sizeof (t_const_data),
-                                     &execution->uintData);
-  setKernelArg(execution->kernel, &nextArg, sizeof(cl_mem), &execution->clUintData);
-
-  /*
-  ** 6 - Device index __constant device number (RO)
-  */
-  deviceNum=0;
-  execution->clDeviceIndex0=createBuffer(execution->context,
+  execution->clDeviceIndex0=(cl_mem *)allocate(sizeof(cl_mem) * execution->numDevices);
+  execution->clObjChunk=(cl_mem *)allocate(sizeof(cl_mem) * execution->numDevices);
+  for (i=0 ; i < execution->numDevices ; i++) {
+    /*
+    ** 1 - Local Mem for all particules (recuring buffer) __local (RW)
+    */ 
+    setKernelArg(execution->kernel[i], 0, execution->uintData.localMemSize, NULL);
+    
+    /*
+    ** 2 - Recuring buffer position __local (RW)
+    */
+    setKernelArg(execution->kernel[i], 1, sizeof(unsigned int), NULL);
+    
+    /*
+    ** 3 - Local Mem for temp particules __local (RW)
+    */
+    setKernelArg(execution->kernel[i], 2, execution->numWorkerPerWorkgroup * sizeof(t_object), NULL);
+    
+    /*
+    ** 4 - List of particules __global (RO)
+    */
+    execution->clObjectList=createBuffer(execution->context[i],
 					 CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-					 sizeof(cl_uint),
-					 &deviceNum);
-  setKernelArg(execution->kernel, &nextArg, sizeof(cl_mem), &execution->clDeviceIndex0);
+					 sizeof (t_object) * universe->numObj,
+					 universe->objectList);
+    setKernelArg(execution->kernel[i], 3, sizeof(cl_mem), &execution->clObjectList);
+    
+    /*
+    ** 5 - Constant __constant (RO)
+    */
+    execution->uintData.numObj=universe->numObj;
+    execution->uintData.radius=universe->radius;
+    execution->uintData.tooClose=universe->tooClose;
+    execution->uintData.tooFar=universe->tooFar;
+    execution->clUintData=createBuffer(execution->context[i],
+				       CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+				       sizeof (t_const_data),
+				       &execution->uintData);
+    setKernelArg(execution->kernel[i], 4, sizeof(cl_mem), &execution->clUintData);
+    
+    /*
+    ** 6 - Device index __constant device number (RO)
+    */
+    execution->deviceIndex[i]=i;
+    execution->clDeviceIndex0[i]=createBuffer(execution->context[i],
+					  CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+					  sizeof(unsigned int),
+					  &execution->deviceIndex[i]);
+    setKernelArg(execution->kernel[i], 5, sizeof(cl_mem), &execution->clDeviceIndex0[i]);
+    
+    /*
+    ** 7 - Universe object affected by others... (RW)
+    */
+    execution->clObjChunk[i]=createBuffer(execution->context[i],
+					  CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+					  sizeof(t_object) * execution->uintData.deviceRange,
+					  execution->objChunk[i]);
+    setKernelArg(execution->kernel[i], 6, sizeof(cl_mem), &execution->clObjChunk[i]);
+  }
   
-  /*
-  ** 7 - Universe object affected by others... (RW)
-  */
-  execution->clObjChunk=createBuffer(execution->context,
-					CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-					sizeof(t_object) * execution->uintData.deviceRange,
-					execution->objChunk[0]);
-  setKernelArg(execution->kernel, &nextArg, sizeof(cl_mem), &(execution->clObjChunk));
-  
-  return nextArg;
+  return 6;
 }
