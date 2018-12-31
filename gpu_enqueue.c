@@ -42,4 +42,5 @@ void					enqueueKernel(int deviceNum, t_gpu *execution) {
     perror("Couldn't enqueue the kernel");
     exit(1);
   }
+  clFlush(execution->queue[deviceNum]);
 }
