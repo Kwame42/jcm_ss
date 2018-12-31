@@ -41,7 +41,7 @@ to run the simulaton, first create a `config_file.json` and launch the program:
 
 ## configuration option
 
-a config file is a simple json file:
+A config file is a simple json file:
 
 `{
     "Save Dir": "tmp\/",
@@ -66,6 +66,8 @@ Where:
 - `Too Close`: smoother see previous section
 - `Too Far`:  smoother see previous section
 - `Initial Space Objects`: are the initial condition of your simulation.
+
+You can generate your configuration file using `initCond.rb <num objects>` and then `./jcm_ss <num objects>.json`
 
 ## Output
 
@@ -92,3 +94,4 @@ The code is in `c` because the algorithm is ultra complex (which is not the oppo
 I used a table for objects because this go fast, I don't have to add elements and by the way I can do easy copy of the table using `memcpy` which is very important, it's the fatest c library function...
 
 The input and the output are in Json, so feel free to create any initial condition and to write and to she a renderer (I wont write it, I do not like graphical stuff).
+
