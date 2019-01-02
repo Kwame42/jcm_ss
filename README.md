@@ -95,3 +95,11 @@ I used a table for objects because this go fast, I don't have to add elements an
 
 The input and the output are in Json, so feel free to create any initial condition and to write and to she a renderer (I wont write it, I do not like graphical stuff).
 
+## TO DO
+
+### short term
+- Test and control of the operation
+- Changing output file to the format as inoput (to enbale "to be continued...")
+
+### Long term
+- integration of funnier algo like "Particle Mesh"

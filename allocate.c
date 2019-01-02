@@ -30,3 +30,7 @@ t_object			*allocateObjectList(int nbrObject) {
 t_gpu				*allocateGpu(void) {
   return (t_gpu *)allocate(sizeof(t_gpu));
 }
+
+cl_event			*allocateEvent(int num) {
+  return (cl_event *)allocate(sizeof (cl_event) * num);
+}

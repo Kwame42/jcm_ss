@@ -11,7 +11,15 @@ void					enqueueKernel(int deviceNum, t_gpu *execution) {
 
   execution->numWorker=execution->uintData.deviceRange;
   printf(">>INFO   : number of workgroup [%lu]\n", execution->numWorker /  execution->numWorkerPerWorkgroup);
-  if((err=clEnqueueNDRangeKernel(execution->queue[deviceNum], execution->kernel[deviceNum], 1, NULL, &execution->numWorker, &execution->numWorkerPerWorkgroup, 0, NULL, NULL)) < 0) {
+  if((err=clEnqueueNDRangeKernel(execution->queue[deviceNum],
+				 execution->kernel[deviceNum],
+				 1,
+				 NULL,
+				 &execution->numWorker,
+				 &execution->numWorkerPerWorkgroup,
+				 0,
+				 NULL,
+				 &execution->queueEvent[deviceNum])) < 0) {
     t_ocl_err				err_list[]={
 						  {CL_INVALID_PROGRAM_EXECUTABLE, "there is no successfully built program executable available for device associated with command_queue."},
 						  {CL_INVALID_COMMAND_QUEUE, "command_queue is not a valid host command-queue."},
@@ -42,5 +50,4 @@ void					enqueueKernel(int deviceNum, t_gpu *execution) {
     perror("Couldn't enqueue the kernel");
     exit(1);
   }
-  clFlush(execution->queue[deviceNum]);
 }

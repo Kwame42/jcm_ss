@@ -13,7 +13,7 @@ cl_command_queue			*createCommandQueue(cl_context *context, cl_device_id *device
 
   ret=allocate(sizeof(cl_command_queue) * numDevices);
   for (i=0 ; i < numDevices ; i++) {
-    ret[i]=clCreateCommandQueue(context[i], device[i], 0, &err);
+    ret[i]=clCreateCommandQueue(context[i], device[i], CL_QUEUE_PROFILING_ENABLE, &err);
     if(err < 0) {
       t_ocl_err				err_list[]={
 	{CL_INVALID_CONTEXT, "if context is not a valid context."},

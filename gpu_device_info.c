@@ -43,15 +43,16 @@ unsigned long				getDeviceLocalMemSize(cl_device_id device) {
   return memSize;
 }
 
-unsigned long				getDeviceGlobalMemSize(cl_device_id device) {
-  unsigned long				memSize;
+
+unsigned long				getDeviceTimerResolution(cl_device_id device) {
+  unsigned long				res;
   
-  if (clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong), &memSize, NULL) != CL_SUCCESS) {
-    perror("Can't get global mem size info from device\n");
+  if (clGetDeviceInfo(device, CL_DEVICE_PROFILING_TIMER_RESOLUTION, sizeof(cl_ulong), &res, NULL) != CL_SUCCESS) {
+    perror("Can't get CL_DEVICE_PROFILING_TIMER_RESOLUTION from device\n");
     exit(1);
   }
 
-  return memSize;
+  return res;
 }
 
 int					getDeviceNumCore(cl_device_id device) {

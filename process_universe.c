@@ -11,14 +11,22 @@ void			setObjNewPositionGPU(t_universe *universe, t_gpu *execution, int numArg) 
   unsigned int		i;
 
   for (i=0 ; i < execution->numDevices ; i++) {
-    enqueueWriteBuffer(execution->queue[i], execution->clDeviceIndex0[i], &i, sizeof(unsigned int));
+    printf(">>INFO   : Start Job [%d]\n", i);
+    printf("         : Writing [%lu] bit in device\n", sizeof(t_object) * execution->uintData.deviceRange);
     enqueueWriteBuffer(execution->queue[i], execution->clObjChunk[i], execution->objChunk[i], sizeof(t_object) * execution->uintData.deviceRange);
     enqueueKernel(i, execution);
-    printf("Start job [%d]\n", i);
+    printf(">>INFO  : flushing data\n");
+    clFlush(execution->queue[i]);
   }
   for (i=0 ; i < execution->numDevices ; i++) {
+    cl_ulong		start, end;
+    int			err;
+    
     enqueueReadBuffer(execution->queue[i], execution->clObjChunk[i], execution->objChunk[i], sizeof(t_object) * execution->uintData.deviceRange);
-    printf("Jobs done [%d]\n", i);
+    err=clWaitForEvents(1, &execution->queueEvent[i]);
+    err=clGetEventProfilingInfo(execution->queueEvent[i], CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &start, NULL);
+    err|=clGetEventProfilingInfo(execution->queueEvent[i], CL_PROFILING_COMMAND_SUBMIT, sizeof(cl_ulong), &end, NULL);
+    printf(">>INFO   : Kernel [%d] duration time %llu %llu [%llu] ms\n", i, end, start, (start - end));
   }
 }
 

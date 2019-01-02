@@ -86,6 +86,8 @@ typedef struct			s_universe {
 }				t_universe;
 
 typedef struct			s_gpu {
+  cl_ulong			*timerRes;
+  cl_event			*queueEvent;
   t_const_data			uintData;
   cl_uint			numDevices;
   t_object			**objChunk;
@@ -125,6 +127,7 @@ t_universe			*init_universe(int, int);
 void				*allocate(int);
 t_universe			*allocateUniverse();
 t_object			*allocateObjectList(int);
+cl_event			*allocateEvent(int);
 void				saveUniverse(int, t_universe *);
 void				calulNewTmpVelocity(t_universe *);
 void				calculNewVelocity(t_universe *, int, int);
@@ -161,3 +164,4 @@ int				getMultipleMax(size_t, size_t, size_t);
 void				enqueueWriteBuffer(cl_command_queue, cl_mem, const void *, size_t);
 cl_program			*buildProgram(cl_context *, cl_device_id *, cl_uint, const char*);
 cl_context			*createContext(cl_device_id *, cl_uint);
+unsigned long			getDeviceTimerResolution(cl_device_id);

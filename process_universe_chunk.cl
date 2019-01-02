@@ -83,28 +83,33 @@ __kernel void	process_universe_chunk(__local float8		*lo_obj_list,
   wait_group_events(1, &e);
   for (i = 0 ; i < num_lo_cpy ; i++) {
     size=memcpy_gl_lo(lo_obj_list, local_mem_size / SIZE_FLOAT8, GL_obj_list, num_obj, lo_pos);
-    for (k = 0 ; k < size ; k++) {
+    for (j = 0 ; j < size ; j++) {
       float3			d;
       float			distance;
       float			force;
       float3			grav_vel;
 
-      if ((device_num * device_range + global_addr) != i * size + k) {
-	d = lo_data[local_addr].xyz - lo_obj_list[k].xyz;
-	distance = sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
-	// if (lo_data[j].s6 != 0 && lo_obj_list[k].s6 ) -> exit
-	// if (distance < too_close)  -> fusion part (add mass to lo_data[j].s6 += lo_obj_list[k].s6 && GL_obj_list[k].s6 == 0
-	// if (distance < too_far) {
-	force = G * part.s6 * lo_obj_list[k].s6 / distance / distance;
-	grav_vel = d * force / distance;
-	lo_data[local_addr].s345 += grav_vel;
+      if (lo_data[local_addr].s6 != 0 && lo_obj_list[j].s6 != 0) { //if there is mass for both objects
+	if ((device_num * device_range + global_addr) != i * size + k) { //don't affect an object by itself
+	  d = lo_data[local_addr].xyz - lo_obj_list[j].xyz;
+	  distance = sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
+	  if (distance < too_close) { // fusion objects
+	    lo_data[j].s6 += lo_obj_list[j].s6;
+	    GL_obj_list[i * size + j].s6 == 0; // affect global memory can cause issue in the model... todo !
+	  } else if (distance < too_far) { //calculate new velocity
+	    force = G * part.s6 * lo_obj_list[j].s6 / distance / distance;
+	    grav_vel = d * force / distance;
+	    lo_data[local_addr].s345 += grav_vel;
+	  }
+	}
       }
+      barrier(CLK_LOCAL_MEM_FENCE);
     }
-    barrier(CLK_LOCAL_MEM_FENCE);
+    if (lo_data[local_addr].s6 != 0) {
+      lo_data[local_addr].s012 = lo_data[local_addr].s345 / lo_data[local_addr].s6; //new object position
+    }
+    e = async_work_group_copy(&GL_data[group_addr * device_range / num_work_group], lo_data, device_range / num_work_group, e);
+    wait_group_events(1, &e);
   }
-  e = async_work_group_copy(&GL_data[group_addr * device_range / num_work_group], lo_data, device_range / num_work_group, e);
-  wait_group_events(1, &e);
-  //  if (local_addr == 0 && group_addr == 0)
-  //    printf("%d\n", *GL_device_num);
 }
 
