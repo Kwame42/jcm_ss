@@ -26,7 +26,7 @@ void			setObjNewPositionGPU(t_universe *universe, t_gpu *execution, int numArg) 
     err=clWaitForEvents(1, &execution->queueEvent[i]);
     err=clGetEventProfilingInfo(execution->queueEvent[i], CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &start, NULL);
     err|=clGetEventProfilingInfo(execution->queueEvent[i], CL_PROFILING_COMMAND_SUBMIT, sizeof(cl_ulong), &end, NULL);
-    printf(">>INFO   : Kernel [%d] duration time %llu %llu [%llu] ms\n", i, end, start, (start - end));
+    printf(">>INFO   : Kernel [%d] duration time [%f] ms\n", i, (start - end) * 0.000001f);
   }
 }
 
