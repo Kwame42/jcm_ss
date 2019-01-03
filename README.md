@@ -61,7 +61,7 @@ A config file is a simple json file:
   "Nbr Tic": 1000,
   "Too Close": 1000,
   "Too Far": 1000,
-  "Object Size": 1000
+  "Object Size": 1000,
   "Initial Space Objects": [
     {"x": -2, "y": 0, "vx": -1, "vy":0, "mass": 5},
     {"x": 2, "y": 0, "vx": 1, "vy":0, "mass": -5},
