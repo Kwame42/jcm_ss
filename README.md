@@ -123,9 +123,9 @@ The  input and  the output  are in  Json, so  feel free  to create  any initial
 condition and to  write and to she a  renderer (I wont write it, I  do not like
 graphical stuff).
 
-## TO DO
+## TODO
 
-### short term
+### Short term
 
 - Test and control of the operation
 - Changing output file to the format as inoput (to enbale "to be continued...")
@@ -133,3 +133,15 @@ graphical stuff).
 ### Long term
 
 - Integration of funnier algo like "Particle Mesh"
+
+## Miscellaneous
+
+```
+    ╚⊙ ⊙╝
+  ╚═(███)═╝
+ ╚═(███)═╝
+╚═(███)═╝
+ ╚═(███)═╝
+  ╚═(███)═╝
+   ╚═(███)═╝
+```
