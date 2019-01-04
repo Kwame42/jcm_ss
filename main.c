@@ -11,8 +11,7 @@ int			main(int ac, char **av) {
 
   universe = getConf(ac, av);
   setInitialCond(universe);
-  //  showUniverse(universe);
   processUniverse(universe);
-  //  printf(">>INFO  : Total duration %f\n", (double) ((end.tv_usec - start.tv_usec) / 1000000) + (double)(end.tv_sec - start.tv_sec));
+  printf("...xxXXX ENJOY YOUR RENDERING XXXxx...\n");
   exit(0);
 }

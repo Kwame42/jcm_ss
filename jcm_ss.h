@@ -15,6 +15,7 @@
 #else
 #  include <CL/cl.h>
 #endif
+#include <pthread.h>
 
 /*
 **
@@ -33,6 +34,7 @@
 #define JCM_SS_PRECISION	"Precision"
 #define JCM_SS_OBJ_SIZE		"Object Size"
 #define JCM_SS_INIT_OBJ		"Initial Space Objects"
+#define JCM_SS_TIC_NUM		"Tic"
 #define DOUBLE_QUOTE		34
 #define BACK_SLASH		92
 #define OCL_PROGRAM_FILE	"process_velocity.cl"
@@ -54,22 +56,11 @@
 #define OBJ_VEL_Z(universe, i)					((universe)->objectList[i].velocity.z)
 #define OBJ_VEL(universe, i)					((universe)->objectList[i].velocity)
 #define SET_OBJ(universe, i, objX, objY, objZ, objM, objVX, objVY, objVZ)	{OBJ_X(universe, i) = (objX); OBJ_Y(universe, i) = (objY); OBJ_Y(universe, i) = (objY); OBJ_MASS(universe, i) = (objM); OBJ_VEL_X(universe, i) = (objVX); OBJ_VEL_Y(universe, i) = (objVY); OBJ_VEL_Z(universe, i) = (objVZ);}
-#define TMP_X(universe, i)					((universe)->tmpObjectList[i].pos.x)
-#define TMP_Y(universe, i)					((universe)->tmpObjectList[i].pos.y)
-#define TMP_Z(universe, i)					((universe)->tmpObjectList[i].pos.z)
-#define TMP_MASS(universe, i)					((universe)->tmpObjectList[i].mass)
-#define TMP_VEL_X(universe, i)					((universe)->tmpObjectList[i].velocity.x)
-#define TMP_VEL_Y(universe, i)					((universe)->tmpObjectList[i].velocity.y)
-#define TMP_VEL_Z(universe, i)					((universe)->tmpObjectList[i].velocity.z)
-#define SET_TMP(universe, i, objX, objY, objZ, objM, objVX, objVY, objVZ)	{TMP_X(universe, i) = (objX); TMP_Y(universe, i) = (objY); TMP_Y(universe, Z) = (objZ); TMP_MASS(universe, i) = (objM); TMP_VEL_X(universe, i) = (objVX); TMP_VEL_Y(universe, i) = (objVY); TMP_VEL_Z(universe, i) = (objVZ);}
 #define SHOW_OBJ(universe, i)					printf("fin %5d:[x:%4.4f] [y:%4.4f] [z:%4.4f] [m: %4f] {a: %4.4f, b: %4.4f c: %4.4f} \n", i, OBJ_X(universe,i), OBJ_Y(universe, i), OBJ_Z(universe, i), OBJ_MASS(universe, i), OBJ_VEL_X(universe, i), OBJ_VEL_Y(universe, i), OBJ_VEL_Z(universe, i));
-#define SHOW_TMP(universe, i)					printf("tmp %5d:[x:%4.4f] [y:%4.4f] [m: %4f] {a: %4.4f, m: %4.4f} \n", i, TMP_X(universe,i), TMP_Y(universe, i), TMP_MASS(universe, i), TMP_VEL_X(universe, i), TMP_VEL_Y(universe, i));
-#define DEL_OBJ(universe, i)					{bzero(&((universe)->objectList[i]), sizeof(t_object)), bzero(&((universe)->tmpObjectList[i]), sizeof(t_object));}
 
 /*
 **
 */
-
 typedef struct			s_universe {
   unsigned int			numObj;
   const char			*saveDir;
@@ -82,8 +73,19 @@ typedef struct			s_universe {
   int				objSize;
   json_object			*initCond;
   t_object			*objectList;
-  t_object			*tmpObjectList;
 }				t_universe;
+
+typedef struct			s_tInfo {
+  pthread_t			tId;
+  pthread_attr_t		attr;
+  pthread_mutex_t		mutex;
+  pthread_cond_t		cond;
+  int				ticNum;
+  t_universe			*universe;
+#define TINFO_CONTINUE		(1)
+#define TINFO_STOP		(0)
+  int				cont;
+}				t_tInfo;
 
 typedef struct			s_gpu {
   cl_ulong			*timerRes;
@@ -106,7 +108,6 @@ typedef struct			s_gpu {
   cl_mem			clUintData;
   cl_mem			*clObjChunk;
   cl_mem			clObjectList;
-  cl_mem			clTmpObjectList;
   cl_mem			clLocalObjectList;
   cl_mem			*clDeviceIndex0;
 }				t_gpu;
@@ -128,13 +129,13 @@ void				*allocate(int);
 t_universe			*allocateUniverse();
 t_object			*allocateObjectList(int);
 cl_event			*allocateEvent(int);
-void				saveUniverse(int, t_universe *);
+void				*saveFileUniverse(void *);
+void				saveUniverse(t_tInfo *, int);
 void				calulNewTmpVelocity(t_universe *);
 void				calculNewVelocity(t_universe *, int, int);
 void				processUniverse(t_universe *);
 void				setInitialCond(t_universe *);
 void				showUniverse(t_universe *universe);
-void				showTmpUniverse(t_universe *universe);
 void				check_opt(t_universe *);
 struct timeval			*allocateTimer();
 void				setTimer(struct timeval *);
@@ -165,3 +166,6 @@ void				enqueueWriteBuffer(cl_command_queue, cl_mem, const void *, size_t);
 cl_program			*buildProgram(cl_context *, cl_device_id *, cl_uint, const char*);
 cl_context			*createContext(cl_device_id *, cl_uint);
 unsigned long			getDeviceTimerResolution(cl_device_id);
+t_tInfo				*initThreadInfo(t_universe *);
+void				waitThread(t_tInfo *);
+void				saveUniverseJSON(int, t_universe *);

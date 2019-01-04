@@ -2,11 +2,11 @@
 
 JCM_SS is Janus Cosmological Model N-Body simulation.
 
-For more information regarding Janus model please see:
+For more information regarding Janus model please see form the author(s):
 
-- http://www.jp-petit.org/science/Le_Modele_Cosmologique_Janus.pdf,
-- author website http://www.jp-petit.org
-- and author youtube video channel https://www.youtube.com/user/JPPETITofficiel
+- http://www.jp-petit.org
+- Youtube video channel https://www.youtube.com/user/JPPETITofficiel
+- http://www.jp-petit.org/science/Le_Modele_Cosmologique_Janus.pdf
 
 ## Introduction of M- space objects
 
@@ -128,7 +128,7 @@ graphical stuff).
 ### Short term
 
 - Test and control of the operation
-- Changing output file to the format as inoput (to enbale "to be continued...")
+- Changing output file to the format as input (to enbale "to be continued...")
 
 ### Long term
 

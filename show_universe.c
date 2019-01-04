@@ -11,16 +11,6 @@
 /*
 **
 */
-void			showTmpUniverse(t_universe *universe) {
-  int			i;
-
-  printf("==> Tmp\n");
-  for (i=0 ; i < universe->numObj ; i++)
-    SHOW_TMP(universe, i);
-  printf("---\n");
-	   //    printf("%5d: x:%4d y:%4d m:%4d {a:%4.2f m:%4.2f}\n", i, POS_X(universe,i), POS_Y(, tmp->mass, tmp->velocity.angle, tmp->velocity.magnitude);
-}
-
 void			showUniverse(t_universe *universe) {
   int			i;
   

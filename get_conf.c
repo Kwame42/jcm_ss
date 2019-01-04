@@ -140,7 +140,7 @@ t_universe			*getConf(int ac, char **av) {
       universe->initCond=val;
     }
   }
-  checkUniverse(universe);
+ checkUniverse(universe);
   
   return universe;
 }

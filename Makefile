@@ -1,5 +1,5 @@
 TARGET = jcm_ss
-LIBS = -lm -ljson-c 
+LIBS = -lm -ljson-c -lpthread
 CC = clang #-fsanitize=address
 CFLAGS = -g -Wall -Wno-deprecated-declarations
 PROC_TYPE = $(strip $(shell uname -m | grep 64))
