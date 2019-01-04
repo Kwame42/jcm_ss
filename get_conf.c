@@ -29,20 +29,12 @@ void			checkUniverse(t_universe *universe) {
     printf("Option %s not set\n", JCM_SS_NUM_TIC);
     exit(1);
   }
-  if (universe->precision == 0) {
-    printf("Option %s not set\n", JCM_SS_PRECISION);
-    exit(1);
-  }
   if (universe->tooClose == 0) {
     printf("Option %s not set\n", JCM_SS_TOO_CLOSE);
     exit(1);
   }
   if (universe->tooFar == 0) {
     printf("Option %s not set\n", JCM_SS_TOO_FAR);
-    exit(1);
-  }
-  if (universe->objSize == 0) {
-    printf("Option %s not set\n", JCM_SS_OBJ_SIZE);
     exit(1);
   }
   if (universe->initCond == 0) {
@@ -129,12 +121,6 @@ t_universe			*getConf(int ac, char **av) {
     }
     if (strcmp(key, JCM_SS_TOO_FAR) == 0) {
       universe->tooFar=json_object_get_int(val);
-    }
-    if (strcmp(key, JCM_SS_OBJ_SIZE) == 0) {
-      universe->objSize=json_object_get_int(val);
-    }
-    if (strcmp(key, JCM_SS_PRECISION) == 0) {
-      universe->precision=json_object_get_int(val);
     }
     if (strcmp(key, JCM_SS_INIT_OBJ) == 0) {
       universe->initCond=val;
