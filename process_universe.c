@@ -32,18 +32,17 @@ void			processUniverse(t_universe *universe) {
   int			i;
   t_gpu			*execution;
   int			numArg;
-  //  t_tInfo		*tSaveFile;
+  t_tInfo		*tSaveFile;
 
   execution=allocateGpu();
-  //  tSaveFile=initThreadInfo(universe);
+  tSaveFile=initThreadInfo(universe);
   initGpu(execution, "process_universe_chunk.cl", "process_universe_chunk"); 
   getRange(universe, execution);
   numArg=setGlobalKernelArg(execution, universe);
   for (i=0 ; i < universe->numTic ; i++) {
     printf("\n##\n## ROUND %d\n", i + 1);
     setObjNewPositionGPU(universe, execution, numArg);
-    universe->saveFunc(i, universe);
-    //saveUniverse(tSaveFile, i + 1);
+    saveUniverse(tSaveFile, i + 1);
   }
-  //  waitThread(tSaveFile);
+  waitThread(tSaveFile);
 }
