@@ -26,6 +26,9 @@
 */
 #define VERSION			0
 #define JCM_SS_SAVE_FILE	"Save File"
+#define JCM_SS_SAVE_FORMAT	"Save Format"
+#  define JCM_SS_JSON		"JSON"
+#  define JCM_SS_POVRAY		"POVRAY"
 #define JCM_SS_UNIVERSE_RADIUS	"Universe Radius"
 #define JCM_SS_NUM_TIC		"Num Tic"
 #define JCM_SS_SAVE_DIR		"Save Dir"
@@ -73,6 +76,7 @@ typedef struct			s_universe {
   int				objSize;
   json_object			*initCond;
   t_object			*objectList;
+  void				(*saveFunc)(int ticNum, struct s_universe *universe);
 }				t_universe;
 
 typedef struct			s_tInfo {
@@ -168,4 +172,5 @@ cl_context			*createContext(cl_device_id *, cl_uint);
 unsigned long			getDeviceTimerResolution(cl_device_id);
 t_tInfo				*initThreadInfo(t_universe *);
 void				waitThread(t_tInfo *);
-void				saveUniverseJSON(int, t_universe *);
+void				saveFileJson(int, t_universe *);
+void				saveFilePovray(int, t_universe *);

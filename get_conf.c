@@ -14,34 +14,37 @@
 */
 void			checkUniverse(t_universe *universe) {
   if (universe->saveDir == NULL) {
-    printf("Option %s not set\n", JCM_SS_SAVE_DIR);
+    printf("Option [%s] not set\n", JCM_SS_SAVE_DIR);
     exit(1);
   }
   if (universe->saveFile == NULL) {
-    printf("Option %s not set\n", JCM_SS_SAVE_FILE);
+    printf("Option [%s] not set\n", JCM_SS_SAVE_FILE);
     exit(1);
   }
   if (universe->radius == 0) {
-    printf("Option %s not set\n", JCM_SS_UNIVERSE_RADIUS);
+    printf("Option [%s] not set\n", JCM_SS_UNIVERSE_RADIUS);
     exit(1);
   }
   if (universe->numTic == 0) {
-    printf("Option %s not set\n", JCM_SS_NUM_TIC);
+    printf("Option [%s] not set\n", JCM_SS_NUM_TIC);
     exit(1);
   }
   if (universe->tooClose == 0) {
-    printf("Option %s not set\n", JCM_SS_TOO_CLOSE);
+    printf("Option [%s] not set\n", JCM_SS_TOO_CLOSE);
     exit(1);
   }
   if (universe->tooFar == 0) {
-    printf("Option %s not set\n", JCM_SS_TOO_FAR);
+    printf("Option [%s] not set\n", JCM_SS_TOO_FAR);
     exit(1);
   }
   if (universe->initCond == 0) {
-    printf("Option %s not set\n", JCM_SS_INIT_OBJ);
+    printf("Option [%s] not set\n", JCM_SS_INIT_OBJ);
     exit(1);
   }
-
+  if (universe->saveFunc == 0) {
+    printf("Option [%s] not set\n", JCM_SS_SAVE_FORMAT);
+    exit(1);
+  }
 }
 
 char			*normalizedString(const char *str) {
@@ -50,10 +53,7 @@ char			*normalizedString(const char *str) {
   int			i;
 
   size=strlen(str);
-  if ((ret=malloc(size)) == NULL) {
-    printf ("can't allocate memory\n");
-    exit(1);
-  }
+  ret=(char *)allocate(size);
   i=0;
   while (str && *str) {
     if (*str != DOUBLE_QUOTE && *str != BACK_SLASH) {
@@ -80,7 +80,7 @@ char			*getConfFile(const char *file) {
   int			size;
 
   if ((fd = open(file, O_RDONLY)) < 0 ) {
-    printf("Can't open file %s\n", file);
+    printf("Can't open file [%s]\n", file);
     exit(1);
   }
   size=getFilesize(file);
@@ -91,6 +91,17 @@ char			*getConfFile(const char *file) {
   close(fd);
 
   return buff;
+}
+
+void				setFileFunc(t_universe *universe, const char *val) {
+  if (strcmp(val, JCM_SS_JSON) == 0) {
+    universe->saveFunc=saveFileJson;
+  } else if (strcmp(val, JCM_SS_POVRAY) == 0) {
+    universe->saveFunc=saveFilePovray;
+  } else {
+    printf("Unknown output File Format [%s]\n", val);
+    exit(1);
+  }
 }
 
 t_universe			*getConf(int ac, char **av) {
@@ -109,6 +120,9 @@ t_universe			*getConf(int ac, char **av) {
     }
     if (strcmp(key, JCM_SS_SAVE_DIR) == 0) {
       universe->saveDir=json_object_get_string(val);
+    }
+    if (strcmp(key, JCM_SS_SAVE_FORMAT) == 0) {
+      setFileFunc(universe, json_object_get_string(val));
     }
     if (strcmp(key, JCM_SS_UNIVERSE_RADIUS) == 0) {
       universe->radius=json_object_get_int(val);
