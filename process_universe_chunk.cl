@@ -7,7 +7,8 @@
 /*
 **
 */
-#define SIZE_FLOAT8 (sizeof(float8))
+#define G		(6660000000)
+#define SIZE_FLOAT8	(sizeof(float8))
 
 /*
 **

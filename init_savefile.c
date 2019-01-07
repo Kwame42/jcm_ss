@@ -22,15 +22,17 @@ void			saveFilePovray(int ticNum, t_universe *universe) {
   char			filename[MAX_SIZE];
   int			i;
 
-  sprintf(filename, "%s%d-%s",universe->saveDir, ticNum, universe->saveFile);
+  sprintf(filename, "%s%d-%s.pov",universe->saveDir, ticNum, universe->saveFile);
   fp=fopen(filename, "w");
   if (fp == NULL) {
     printf("Can't open file [%s] for writing\n", filename);
     exit(1);
   }
+  size=sprintf(buff, "#include \"colors.inc\"\n background { color Black } \n camera { location <%d, %d, %d>\nlook_at  <0, 0,  0>\n} \nlight_source { <%d, %d, %d> color White}\n", universe->radius * 2, universe->radius * 2, universe->radius * 2, universe->radius * 2, universe->radius * 2, universe->radius * 2);
+  fwrite(buff, size, 1, fp);
   for (i=0 ; i < universe->numObj ; i++) {
     if (OBJ_MASS(universe, i)) {
-      size=sprintf(buff, "sphere { <%f, %f, 0>, %f texture {pigment { %s } finish { reflection 1 }}}\n", OBJ_X(universe, i), OBJ_Y(universe, i), universe->objSize * sqrt(fabs(OBJ_MASS(universe, i))), (OBJ_MASS(universe, i) < 0 ? "color red 1.0" : "BrightGold"));
+      size=sprintf(buff, "sphere { <%f, %f, %f>, %f texture {pigment { %s } finish { reflection 1 }}}\n", OBJ_X(universe, i), OBJ_Y(universe, i), OBJ_Z(universe, i), fabs(OBJ_MASS(universe, i)), (OBJ_MASS(universe, i) < 0 ? "color red 1.0" : "BrightGold"));
       fwrite(buff, size, 1, fp);
     }
   }
@@ -45,7 +47,7 @@ void			saveFileJson(int ticNum, t_universe *universe) {
   char			filename[MAX_SIZE];
   int			i;
   
-  sprintf(filename, "%s%d-%s",universe->saveDir, ticNum, universe->saveFile);
+  sprintf(filename, "%s%d-%s.json",universe->saveDir, ticNum, universe->saveFile);
   if ((fp=fopen(filename, "w")) == NULL) {
     printf("--ERROR  :Can't open file [%s] for writing\n", filename);
     exit(1);

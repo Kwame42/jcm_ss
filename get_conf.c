@@ -95,8 +95,10 @@ char			*getConfFile(const char *file) {
 
 void				setFileFunc(t_universe *universe, const char *val) {
   if (strcmp(val, JCM_SS_JSON) == 0) {
+    printf(">>INFO   : JSON output file\n");
     universe->saveFunc=saveFileJson;
   } else if (strcmp(val, JCM_SS_POVRAY) == 0) {
+    printf(">>INFO   : POVRAY output file\n");
     universe->saveFunc=saveFilePovray;
   } else {
     printf("Unknown output File Format [%s]\n", val);

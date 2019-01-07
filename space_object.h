@@ -2,7 +2,6 @@
 **
 */
 #define LO_MEM_BUF_POS		(sizeof(unsigned int))
-#define G			(0.667)
 
 /*
 **
