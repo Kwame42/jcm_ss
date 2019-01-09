@@ -141,7 +141,10 @@ t_universe			*getConf(int ac, char **av) {
     if (strcmp(key, JCM_SS_INIT_OBJ) == 0) {
       universe->initCond=val;
     }
-  }
+    if (strcmp(key, JCM_SS_OBJ_SIZE) == 0) {
+      universe->objSize=json_object_get_int(val);
+    } 
+ }
  checkUniverse(universe);
   
   return universe;
