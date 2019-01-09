@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+##
+## Special condition
+##
+##  - we consider that M- are x64 (change RATIO val) heavier than M+
+##  - there is 64 time less M- than M+ (both "side" of the universe have the same weight)
+##  - mass unit is 10^18 (sun is 10^30)... M- are -64 * 10^18 and M+ 10^18 but notation has -64 and 1
+##  - distance unit is AU (1.5*10^8)
+##  - Our "universe" is up to 10K AU (means 6.20 * 10^8 smaller than the Milky way .... :-D)
+##  - G = 6.66*10^(-11)
+##  Force precalculation : G * M * M / (D * D)
+##      6.66 * 10^18 * 10^18   
+##    = ------------------------------- = 2.96 * 10^9
+##      10^11 * 1.5 * 10^8 * 1.5 * 10^8
+##
+##  We consider "G" = 2.96 * 10^9 for Newton compute value...
+##
+##
+AU=1
+RATIO=64
+radius=10000
+TOOCLOSE=1
+TOOFAR=5000
+  
+##
+##
+nbr_part=ARGV[0].to_i;
+num_pos=nbr_part * RATIO / (RATIO + 1)
+num_neg=nbr_part - num_pos
+
+##
+##
+part='      {"nbr": %{nbr}, "x": %{posX}, "y": %{posY}, "z": %{posZ}, "vx": %{velX}, "vy":%{velY}, "vz":%{velZ}, "mass": %{mass}},'
+
+nbr_part=ARGV[0].to_i;
+def function (radius, x)
+  return Math.sqrt(radius * radius - x * x)
+end
+
+def get_co (inout, radius, universe_radius)
+  begin
+    x=rand(universe_radius) * (rand(2) < 1 ? 1 : -1)
+    y=rand(universe_radius) * (rand(2) < 1 ? 1 : -1)
+  end until inout < 1 ? Math.hypot(x, y) < radius : Math.hypot(x, y) > radius
+
+  return x, y
+end
+
+File.open("#{nbr_part}.json", 'w') do |fo|
+  $stdout = fo
+  puts '{
+   "Num Tic": 1,
+   "Save Dir": "tmp\/",
+   "Save File": "file",
+   "Universe Radius":' + (AU * radius).to_s + ',
+   "Save Format": "POVRAY",
+   "Too Close":' + (TOOCLOSE).to_s + ',
+   "Too Far":' + (TOOFAR ).to_s + ',
+   "Object Size":' + Math.cbrt(RATIO).to_s + ',
+   "Initial Space Objects": ['
+  i=0
+  (0..num_neg).each do |n|
+    puts part % {:nbr => (i += 1), :posX => rand(AU * radius), :posY => rand(AU * radius), :posZ => rand(AU * radius), :velX => 0, :velY => 0, :velZ => 0, :mass=> -1 * RATIO}
+  end
+  (0..num_pos).each do |n|
+    puts part % {:nbr => (i += 1), :posX => rand(AU * radius), :posY => rand(AU * radius), :posZ => rand(AU * radius), :velX => 0, :velY => 0, :velZ => 0, :mass=> 1}
+  end
+  #  puts part % {:nbr => n, :posX => i, :posY => i, :posZ => i, :velX => 2, :velY => 2, :velZ => 2, :mass=> 2}
+  #  i += 1
+puts '],
+}'
+end
