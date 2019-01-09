@@ -32,7 +32,7 @@ void			saveFilePovray(int ticNum, t_universe *universe) {
   fwrite(buff, size, 1, fp);
   for (i=0 ; i < universe->numObj ; i++) {
     if (OBJ_MASS(universe, i)) {
-      size=sprintf(buff, "sphere { <%f, %f, %f>, %d texture {pigment { %s } finish { reflection 1 }}}\n", OBJ_X(universe, i), OBJ_Y(universe, i), OBJ_Z(universe, i), (OBJ_MASS(universe, i) < 0 ? universe->objSize : 1), (OBJ_MASS(universe, i) < 0 ? "color red 1.0" : "BrightGold"));
+      size=sprintf(buff, "sphere { <%f, %f, %f>, %d texture {pigment { %s } finish { reflection 1 }}}\n", OBJ_X(universe, i), OBJ_Y(universe, i), OBJ_Z(universe, i), (OBJ_MASS(universe, i) < 0 ? universe->objectSizeNeg : universe->objectSizePos), (OBJ_MASS(universe, i) < 0 ? "color red 1.0" : "BrightGold"));
       fwrite(buff, size, 1, fp);
     }
   }

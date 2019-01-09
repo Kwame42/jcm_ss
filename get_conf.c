@@ -45,6 +45,14 @@ void			checkUniverse(t_universe *universe) {
     printf("Option [%s] not set\n", JCM_SS_SAVE_FORMAT);
     exit(1);
   }
+  if (universe->objectSizePos == 0) {
+    printf("Option [%s] not set\n", JCM_SS_OBJ_SIZE_POS);
+    exit(1);
+  } 
+  if (universe->objectSizePos == 0) {
+    printf("Option [%s] not set\n", JCM_SS_OBJ_SIZE_NEG);
+    exit(1);
+  } 
 }
 
 char			*normalizedString(const char *str) {
@@ -141,8 +149,11 @@ t_universe			*getConf(int ac, char **av) {
     if (strcmp(key, JCM_SS_INIT_OBJ) == 0) {
       universe->initCond=val;
     }
-    if (strcmp(key, JCM_SS_OBJ_SIZE) == 0) {
-      universe->objSize=json_object_get_int(val);
+    if (strcmp(key, JCM_SS_OBJ_SIZE_POS) == 0) {
+      universe->objectSizePos=json_object_get_int(val);
+    } 
+    if (strcmp(key, JCM_SS_OBJ_SIZE_NEG) == 0) {
+      universe->objectSizeNeg=json_object_get_int(val);
     } 
  }
  checkUniverse(universe);

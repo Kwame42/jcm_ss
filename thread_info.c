@@ -56,7 +56,7 @@ void				waitThread(t_tInfo *tInfo) {
 }
 
 
-void			saveUniverse(t_tInfo *tInfo, int ticNum) {
+void				saveUniverse(t_tInfo *tInfo, int ticNum) {
   printf("saving file %d\n", ticNum);
   tInfo->ticNum=ticNum;
   pthread_mutex_lock(&tInfo->mutex);

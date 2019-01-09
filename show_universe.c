@@ -14,7 +14,7 @@
 void			showUniverse(t_universe *universe) {
   int			i;
   
-  printf(" numObj %d\n saveDir %s\n saveFile %s\n radius %d\n numTic %d\n precision %d\n tooClose %ud\n tooFar %ud\n objSize %d\n",\
+  printf(" numObj %d\n saveDir %s\n saveFile %s\n radius %d\n numTic %d\n precision %d\n tooClose %ud\n tooFar %ud\n objSizeNeg %d\n objectSizePos %d",\
 	 universe->numObj,\
 	 universe->saveDir,\
 	 universe->saveFile,\
@@ -23,7 +23,8 @@ void			showUniverse(t_universe *universe) {
 	 universe->precision,\
 	 universe->tooClose,\
 	 universe->tooFar,\
-	 universe->objSize\
+	 universe->objectSizeNeg,		\
+	 universe->objectSizePos\
 	 );
   for (i=0 ; i < universe->numObj ; i++)
     SHOW_OBJ(universe, i);

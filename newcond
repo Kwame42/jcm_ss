@@ -21,7 +21,8 @@ RATIO=64
 radius=10000
 TOOCLOSE=1
 TOOFAR=5000
-  
+OBJSIZEPOS=1
+OBJSIZENEG=4
 ##
 ##
 nbr_part=ARGV[0].to_i;
@@ -56,7 +57,8 @@ File.open("#{nbr_part}.json", 'w') do |fo|
    "Save Format": "POVRAY",
    "Too Close":' + (TOOCLOSE).to_s + ',
    "Too Far":' + (TOOFAR ).to_s + ',
-   "Object Size":' + Math.cbrt(RATIO).to_s + ',
+   "Object Size M+": ' + (OBJSIZEPOS).to_s + ',
+   "Object Size M-": ' + (OBJSIZENEG).to_s + ',
    "Initial Space Objects": ['
   i=0
   (0..num_neg).each do |n|

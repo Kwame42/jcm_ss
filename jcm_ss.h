@@ -35,7 +35,8 @@
 #define JCM_SS_TOO_CLOSE	"Too Close"
 #define JCM_SS_TOO_FAR		"Too Far"
 #define JCM_SS_PRECISION	"Precision"
-#define JCM_SS_OBJ_SIZE		"Object Size"
+#define JCM_SS_OBJ_SIZE_POS	"Object Size M+"
+#define JCM_SS_OBJ_SIZE_NEG	"Object Size M-"
 #define JCM_SS_INIT_OBJ		"Initial Space Objects"
 #define JCM_SS_TIC_NUM		"Tic"
 #define DOUBLE_QUOTE		34
@@ -73,7 +74,8 @@ typedef struct			s_universe {
   int				precision;
   unsigned int			tooClose;
   unsigned int			tooFar;
-  int				objSize;
+  int				objectSizePos;
+  int				objectSizeNeg;
   json_object			*initCond;
   t_object			*objectList;
   void				(*saveFunc)(int ticNum, struct s_universe *universe);
@@ -92,7 +94,7 @@ typedef struct			s_tInfo {
 }				t_tInfo;
 
 typedef struct			s_gpu {
-  cl_ulong			*timerRes;
+  cl_ulong			*timerResolution;
   cl_event			*queueEvent;
   t_const_data			uintData;
   cl_uint			numDevices;

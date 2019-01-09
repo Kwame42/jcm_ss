@@ -7,7 +7,7 @@
 /*
 **
 */
-#define G		(2960000000)
+#define G		(29600.0f)
 #define SIZE_FLOAT8	(sizeof(float8))
 
 /*
@@ -45,8 +45,7 @@ __kernel void	process_universe_chunk(__local float8		*lo_obj_list,
   uint					num_work_group, local_addr, group_addr, num_worker, global_addr;
   uint					local_mem_size, num_obj, radius, worker_range, too_close, too_far, device_range;
   uint					device_num;
-  uint					i, j, k;
-  float8				part;
+  uint					i, j;
   float3				obj, vel;
   float					mass;
   float3				res;
@@ -91,15 +90,16 @@ __kernel void	process_universe_chunk(__local float8		*lo_obj_list,
       float3			grav_vel;
 
       if (lo_data[local_addr].s6 != 0 && lo_obj_list[j].s6 != 0) { //if there is mass for both objects
-	if ((device_num * device_range + global_addr) != i * size + k) { //don't affect an object by itself
+	if ((device_num * device_range + global_addr) != i * size + j) { //don't affect an object by itself
 	  d = lo_data[local_addr].xyz - lo_obj_list[j].xyz;
 	  distance = sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
 	  if (distance < too_close) { // fusion objects
 	    lo_data[j].s6 += lo_obj_list[j].s6;
-	    GL_obj_list[i * size + j].s6 == 0; // affect global memory can cause issue in the model... todo !
+	    GL_obj_list[i * size + j].s6 = 0; // affect global memory can cause issue in the model... todo !
 	  } else if (distance < too_far) { //calculate new velocity
-	    force = G * part.s6 * lo_obj_list[j].s6 / distance / distance;
-	    grav_vel = d * force / distance;
+	    force = G * lo_data[j].s6 * lo_obj_list[j].s6 / distance / distance;
+	    grav_vel = d * force / distance;	
+	    //	    group_addr == 0 && local_addr == 0 && printf("[%f] M'[%f]\n", lo_data[local_addr].s3, grav_vel.s0);
 	    lo_data[local_addr].s345 += grav_vel;
 	  }
 	}
@@ -107,7 +107,8 @@ __kernel void	process_universe_chunk(__local float8		*lo_obj_list,
       barrier(CLK_LOCAL_MEM_FENCE);
     }
     if (lo_data[local_addr].s6 != 0) {
-      lo_data[local_addr].s012 = lo_data[local_addr].s345 / lo_data[local_addr].s6; //new object position
+      //      group_addr == 0 && local_addr == 0 && printf("MOVE : [%f] M'[%f]\n", lo_data[local_addr].s0, lo_data[local_addr].s3 / lo_data[local_addr].s6);
+      lo_data[local_addr].s012 += lo_data[local_addr].s345 / lo_data[local_addr].s6; //new object position
     }
     e = async_work_group_copy(&GL_data[group_addr * device_range / num_work_group], lo_data, device_range / num_work_group, e);
     wait_group_events(1, &e);
